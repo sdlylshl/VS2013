@@ -1,0 +1,3 @@
+[submodule "gogotester"]
+	path = gogotester
+	url = https://github.com/azzvx/gogotester.git
