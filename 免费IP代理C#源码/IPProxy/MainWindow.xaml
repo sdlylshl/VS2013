@@ -1,0 +1,76 @@
+﻿<Window x:Class="IPProxy.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="IP代理-By明月几时有" Height="472.194" Width="725" Loaded="Window_Loaded_1" Closed="Window_Closed_1" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+    <Grid x:Name="myGrid" >
+        <Grid Margin="10,10,176,111">
+                <ListView x:Name="myListView" Margin="0,0,-6,-6"  >
+                    <ListView.ContextMenu>
+                        <ContextMenu  Placement="Right" >
+                            <MenuItem Header="刷新" Click="MenuItem_Click_6" />
+                            <MenuItem Header="一键获取" Click="MenuItem_Click_3" />
+                            <MenuItem Header="一键验证" Click="MenuItem_Click_4" />
+                            <MenuItem Header="设为代理" Click="MenuItem_Click_1"/>
+                            <MenuItem Header="取消代理" Click="MenuItem_Click_2"/>
+                            <MenuItem Header="导入文本" Click="MenuItem_Click_5"/>
+                            <MenuItem Header="导出文本" Click="MenuItem_Click_7" />
+                            <MenuItem Header="一键去除超时项" Click="MenuItem_Click_8" />
+                            <MenuItem Header="一键去除超时未知项" Click="MenuItem_Click_9" />
+                            <MenuItem Header="去除重复IP" Click="MenuItem_Click_10" />
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="序号" Width="40" DisplayMemberBinding="{Binding Path=Index}"></GridViewColumn>
+                            <GridViewColumn Header="IP地址" Width="120" DisplayMemberBinding="{Binding Path=IP}"></GridViewColumn>
+                            <GridViewColumn Header="端口" Width="80" DisplayMemberBinding="{Binding Path=Port}"></GridViewColumn>
+                            <GridViewColumn Header="地点"  Width="120" DisplayMemberBinding="{Binding Path=Place}"></GridViewColumn>
+                            <GridViewColumn Header=" 是否高匿 " Width="auto" DisplayMemberBinding="{Binding Path=Anonymity}"></GridViewColumn>
+                            <GridViewColumn Header="延迟(ms)" DisplayMemberBinding="{Binding Path=Speed}"></GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+            </ListView>
+        </Grid>
+        <Button Content="一键获取" HorizontalAlignment="Left" Margin="235,347,0,0" VerticalAlignment="Top" Width="91" Height="28" Click="Button_Click_1"/>
+        <StatusBar Margin="0,398,0,0">
+            <Label Foreground="Blue">提示</Label>
+            <Label Foreground="Red" x:Name="msgLabel"  Content="欢迎使用IP代理，更多功能请在列表框右键" />
+        </StatusBar>
+        <ComboBox x:Name="srcComboBox" HorizontalAlignment="Left" Margin="83,347,0,0" VerticalAlignment="Top" Width="132" Height="28" SelectedIndex="0">
+            <ComboBoxItem>
+                <TextBlock Text="CN-Proxy国内代理" />
+            </ComboBoxItem>
+            <ComboBoxItem>
+                <TextBlock Text="西刺国内普通" />
+            </ComboBoxItem>
+            <ComboBoxItem>
+                <TextBlock Text="西刺国内高匿" />
+            </ComboBoxItem>
+            <ComboBoxItem>
+                <TextBlock Text="西刺国外普通" />
+            </ComboBoxItem>
+            <ComboBoxItem>
+                <TextBlock Text="西刺国外高匿" />
+            </ComboBoxItem>
+        </ComboBox>
+        <Label Content="数据来源" HorizontalAlignment="Left" Margin="15,347,0,0" VerticalAlignment="Top" Height="28" Width="63"/>
+        <Button Content="一键验证" HorizontalAlignment="Left" Margin="361,346,0,0" VerticalAlignment="Top" Width="82" Height="28" Click="Button_Click_2"/>
+        <GroupBox Header="设置" HorizontalAlignment="Left" Margin="546,13,0,0" VerticalAlignment="Top" Height="140" Width="161">
+            <Grid >
+                <Label Content="超时时间(ms)" HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" Width="84" Margin="0,11,0,0"/>
+                <Label x:Name="threadLabel" Content="线程数" HorizontalAlignment="Left" Margin="10,51,0,0" VerticalAlignment="Top" Height="27" Width="57"/>
+                <TextBox x:Name="threadTextBox" HorizontalAlignment="Left" Height="27" Margin="87,51,0,0" TextWrapping="Wrap" Text="50" VerticalAlignment="Top" Width="52" TextChanged="threadTextBox_TextChanged"/>
+                <CheckBox x:Name="IsCancelCheckBox" Margin="0,91,0,4" Content="关闭窗口自动取消代理" IsChecked="True"></CheckBox>
+            </Grid>
+        </GroupBox>
+        <TextBox x:Name="timeOutTextBox" HorizontalAlignment="Left" Height="22" Margin="640,44,0,0" TextWrapping="Wrap" Text="5000" VerticalAlignment="Top" Width="58" TextChanged="timeOutTextBox_TextChanged"/>
+        <Button Content="设为代理" HorizontalAlignment="Left" Margin="564,159,0,0" VerticalAlignment="Top" Width="134" Height="30" Click="Button_Click_4"/>
+        <Button Content="取消代理" HorizontalAlignment="Left" Margin="564,207,0,0" VerticalAlignment="Top" Width="134" Height="29" Click="Button_Click_5"/>
+        <Label Content="本机IP地址信息" HorizontalAlignment="Left" Margin="577,251,0,0" VerticalAlignment="Top" Height="28" Width="95"/>
+        <Label x:Name="localIPLabel" Content="" HorizontalAlignment="Center" Margin="578,279,19,0" VerticalAlignment="Top" Width="120" Height="26"/>
+        <Label x:Name="ipAddressLabel" Content="" HorizontalAlignment="Center" Margin="568,305,10,0" VerticalAlignment="Top" Width="139" Height="26"/>
+        <Button Content="刷新IP地址信息" Visibility="Hidden" HorizontalAlignment="Left" Margin="564,369,0,0" VerticalAlignment="Top" Width="134" Height="24" Click="Button_Click_3"/>
+        <Button Content="刷新结果" HorizontalAlignment="Left" Margin="476,347,0,0" VerticalAlignment="Top" Width="83" Height="27" Click="Button_Click_6"/>
+        <Button Content="Google测试" HorizontalAlignment="Left" Margin="596,347,0,0" VerticalAlignment="Top" Width="83" Height="27" Click="Button_Click_7"/>
+    </Grid>
+</Window>

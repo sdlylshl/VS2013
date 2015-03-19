@@ -1,0 +1,220 @@
+
+### Include
+!*.doc
+!*.txt
+
+#工程文档
+!+doc
+!+docs
+
+### Compress
+!*.rar
+!*.zip
+
+###
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+tags.idx
+*.tags*
+.tags
+tags
+*~
+~$*
+*副本*
+*.log
+*.Cache
+
+## Build results
+Debug
+debug
+Relese
+relese
+Build			
+build			
+Bin
+bin
+Obj
+obj
+Output
+output
+
+### Common
+*.d
+*.a
+*.db
+*.htm
+*.html
+*.bak
+*.tmp
+*.log
+*.css
+*.xslt
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+
+*.bin
+*.hex
+*.axf
+
+### STM32
+!*.sct
+
+output
+*.uvgui*
+*.uvguix*
+*.uvopt
+*.uvoptx
+
+*.orig
+*.dep
+*.ddk 
+*.edk
+*.lst
+*.lnp
+*.mpf
+*.mpj
+*.omf
+*.plg
+*.rpt
+*.tmp
+*.__i
+*.crf
+*.d 
+*.tra
+*.dep
+*.iex
+*.htm
+*.map
+
+### Microchip
+disassembly
+dist
+build
+*.err
+*.lst
+*.cof
+*.fil
+
+### IAR
+!*.ewp
+!*.eww
+settings
+*.sfr
+*.cout
+*.pbi
+*.r43
+*.d43
+
+### ARM ads1.2
+!*.mcp
+*.stg
+*.tdt
+
+
+###VS2013
+!*.sln
+!*.vcproj
+!*.vcxproj
+!*.vcxproj.filters
+
+*.sdf
+*.ncb
+*.opensdf
+*.user
+
+#Nuget
+packages
+*.suo
+
+### eclipse
+.settings
+.metadata
+RemoteSystemsTempFiles
+
+###Android
+
+### Altium Designer
+
+__Previews
+History
+Project Outputs for *
+CAM for *
+
+*.log
+*.ERC
+*.Cam
+*.Dat
+*.Annotation
+*.schPreview
+*.SchDocPreview
+*.pcblib_viewstate
+*.pcbdoc_viewstate
+##Outputs
+*.DRC 		#Design Rule Check Report
+*.Drr 		#Altium NC Drill Report File
+*.net 		#Altium Netlist File
+*.Nsx 		#Simulation Netlist Document
+*.OutJob 	#Altium Output Job File
+*.rep 		#Report File
+*.Rpt 		#Report File
+##EDIF
+*.edf
+*.edi
+*.edif
+*.ediflib
+*.edn
+##Gerber
+##other
+*.BomDoc
+*.Constraint
+*.DBLib
+*.DBLink
+*.FpgTrg
+##PCB
+*.pcb3d
+*.pcb3dlib
+##Schematic
+*.dot 		#Altium Schematic Template
+*.FSMDoc 	#Altium FSM Document
+*.OpenBus 	#altium OpenBus Document
+*.shcDot 	#Altium Schematic Document
+##Scripts
+*.Bas 		#Altium Script Document
+*.SrcDoc
+*.Tcl
+##Simulation
+*.Ckt 		#Simulation Sub-Circuit
+*.LaxAn 	#Logic Analyser Analog File
+*.LaxDig 	#Logic Analyser Digital File
+*.Mdl 		#Simulation Model
+*.Pld 		#CUPL PLD File
+*.Pwl 		#Simulation Piecewise Linear Description
+*.Sdf  		#Altium Simulation Data File
+*.si 		#CUPL Simulation Input File
+*.so 		#Digital Waveform File
+##VHDL
