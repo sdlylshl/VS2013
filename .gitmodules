@@ -7,3 +7,6 @@
 [submodule "NppAStyle"]
 	path = NppAStyle
 	url = https://github.com/ringsd/NppAStyle
+[submodule "DataPie"]
+	path = DataPie
+	url = https://github.com/yfl8910/DataPie
