@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncChatServer", "SyncChatServer\SyncChatServer.csproj", "{691ECEF5-4CC4-4FF3-BAD1-ADC3727BFEC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncChatClient", "SyncChatClient\SyncChatClient.csproj", "{C8C1182A-3E7A-475F-A6F6-EC9A09C188F6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{691ECEF5-4CC4-4FF3-BAD1-ADC3727BFEC5}.Debug|x86.ActiveCfg = Debug|x86
+		{691ECEF5-4CC4-4FF3-BAD1-ADC3727BFEC5}.Debug|x86.Build.0 = Debug|x86
+		{691ECEF5-4CC4-4FF3-BAD1-ADC3727BFEC5}.Release|x86.ActiveCfg = Release|x86
+		{691ECEF5-4CC4-4FF3-BAD1-ADC3727BFEC5}.Release|x86.Build.0 = Release|x86
+		{C8C1182A-3E7A-475F-A6F6-EC9A09C188F6}.Debug|x86.ActiveCfg = Debug|x86
+		{C8C1182A-3E7A-475F-A6F6-EC9A09C188F6}.Debug|x86.Build.0 = Debug|x86
+		{C8C1182A-3E7A-475F-A6F6-EC9A09C188F6}.Release|x86.ActiveCfg = Release|x86
+		{C8C1182A-3E7A-475F-A6F6-EC9A09C188F6}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
