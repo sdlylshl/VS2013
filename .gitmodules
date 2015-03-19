@@ -4,3 +4,6 @@
 [submodule "gB2312toUnicode"]
 	path = gB2312toUnicode
 	url = https://github.com/lindabell/gB2312toUnicode.git
+[submodule "NppAStyle"]
+	path = NppAStyle
+	url = https://github.com/ringsd/NppAStyle
