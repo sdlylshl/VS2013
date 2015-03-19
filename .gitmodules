@@ -10,3 +10,6 @@
 [submodule "DataPie"]
 	path = DataPie
 	url = https://github.com/yfl8910/DataPie
+[submodule "quarkspwdump"]
+	path = quarkspwdump
+	url = https://github.com/quarkslab/quarkspwdump
