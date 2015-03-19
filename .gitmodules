@@ -1,3 +1,6 @@
 [submodule "gogotester"]
 	path = gogotester
 	url = https://github.com/azzvx/gogotester.git
+[submodule "gB2312toUnicode"]
+	path = gB2312toUnicode
+	url = https://github.com/lindabell/gB2312toUnicode.git
