@@ -13,3 +13,6 @@
 [submodule "quarkspwdump"]
 	path = quarkspwdump
 	url = https://github.com/quarkslab/quarkspwdump
+[submodule "p2p"]
+	path = p2p
+	url = https://github.com/yaroslavchuvaev/p2p
