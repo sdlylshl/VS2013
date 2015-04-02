@@ -19,3 +19,6 @@
 [submodule "rinetd"]
 	path = rinetd
 	url = https://github.com/perryhg/rinetd
+[submodule "shadowsocks-csharp"]
+	path = shadowsocks-csharp
+	url = https://github.com/shadowsocks/shadowsocks-csharp.git
