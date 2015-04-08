@@ -214,7 +214,7 @@ struct _rinetd_options
 };
 
 RinetdOptions options = {
-	"/etc/rinetd.conf"
+	"E:/VS2013/rinetd/Debug/rinetd.conf"
 };
 
 int readArgs (int argc,
@@ -602,6 +602,8 @@ void readConfiguration(void)
 			memcpy(&saddr.sin_addr, &iaddr, sizeof(iaddr));
 			saddr.sin_port = htons(bindPort);
 			j = 1;
+			//当某个端口已经被一个程序占用了，我们如果想直接绑定我们的socket到这个端口是不行的。一般的做法是选用一个备用的端口，或者是等那个程序退出。其实我们还有另一种做法，叫做端口重用。这种技术，其实有点走邪派路线了。换句话说，正规程序一般不用这种技术。因为这种重用势必会影响到原来的程序。但是你如果不在意原来的程序，或者你的本意就是要影响原来的程序，那就去做吧～
+			//端口重用
 			setsockopt(seFds[i], SOL_SOCKET, SO_REUSEADDR,
 				(const char *) &j, sizeof(j));
 			if (bind(seFds[i], (struct sockaddr *) 
