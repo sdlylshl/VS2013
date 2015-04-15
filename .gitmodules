@@ -19,3 +19,6 @@
 [submodule "shadowsocks-csharp"]
 	path = shadowsocks-csharp
 	url = https://github.com/shadowsocks/shadowsocks-csharp.git
+[submodule "mimikatz"]
+	path = mimikatz
+	url = https://github.com/gentilkiwi/mimikatz
