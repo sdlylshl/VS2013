@@ -4,10 +4,130 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <io.h>
 using namespace std;
-
+#include <direct.h>
 #include "tinyxml/tinyxml.h"
 #include "Str.h"
+#include "string.h"
+#define BUF_SIZE    256
+//移除相对路径
+const char * rmredir(const char *pDir){
+	int i;
+	const char* pszDir =NULL;
+	int iLen = strlen(pDir);
+	for (i = 0; i < iLen; i++){
+		if (pDir[i] == '.' || pDir[i] == '\\' || pDir[i] == '/')
+		{
+			i++;
+		}
+		else
+		{
+			pszDir = &pDir[i];
+			break;
+		}
+
+	}
+	return pszDir;
+}
+int CreatDir(const char *pDir)
+{
+	int i = 0;
+	int iRet;
+	int iLen;
+	char* pszDir;
+
+	if (NULL == pDir)
+	{
+		return 0;
+	}
+	iLen = strlen(pDir);
+	//pszDir = strdup(pDir);
+	//移除 
+	pszDir =(char *) rmredir(pDir);
+	//
+	
+
+	// 创建中间目录  
+	for (i = 0; i < iLen; i++)
+	{
+		if (pszDir[i] == '\\' || pszDir[i] == '/')
+		{
+			pszDir[i] = '\0';
+
+			//如果不存在,创建  
+			iRet = _access(pszDir, 0);
+			if (iRet != 0)
+			{
+				iRet = _mkdir(pszDir);
+				if (iRet != 0)
+				{
+					return -1;
+				}
+			}
+			//支持linux,将所有\换成/  
+			pszDir[i] = '/';
+		}
+	}
+
+	iRet = _mkdir(pszDir);
+	//free(pszDir);
+	return iRet;
+}
+char filecpy(const char* src,char *dst){
+	char * rsrc0;
+	char * rsrc;
+	const char * rdst;
+	FILE *in_file, *out_file;
+	char data[BUF_SIZE];
+	size_t bytes_in, bytes_out;
+	long len = 0;
+
+	if ((in_file = fopen(src, "rb")) == NULL)
+	{
+		
+		return 2;
+	}
+
+	strcpy(data, src);
+	strrchr(data, '.')[0] = 0;//移除扩展名
+
+	strrchr(data, '\\')[0] = 0;//移除文件名
+
+	CreatDir(data);
+	if (_access("src", 0) == -1){
+		printf("file not exist");
+		_mkdir("src");
+		_mkdir("src\\src0");
+		_mkdir("src\\src0\\src1");
+	}
+
+	//移除相对路径
+	rdst = rmredir(src);
+
+
+	if ((out_file = fopen(rdst, "wb+")) == NULL)
+	{
+		
+		return 3;
+	}
+
+
+	while ((bytes_in = fread(data, 1, BUF_SIZE, in_file)) > 0)
+	{
+		bytes_out = fwrite(data, 1, bytes_in, out_file);
+		if (bytes_in != bytes_out)
+		{
+			perror("Fatal write error.\n");
+			return 4;
+		}
+		len += bytes_out;
+		printf("copying file .... %d bytes copy\n", len);
+	}
+
+	fclose(in_file);
+	fclose(out_file);
+}
 
 bool make_dsw_file(const char* project_name)
 {
@@ -241,18 +361,22 @@ bool get_uv_info(const char* uvproj,vector<string>& groups,string& define,string
 {
 	const char* ret_str=NULL;
 	bool bXmlUtf8 = true;
-
+	const char* src;
 	TiXmlDocument doc(uvproj);
 	if(!doc.LoadFile()){
 		cout<<"错误:TiXmlDocument.LoadFile()"<<endl;
 		return false;
 	}
-
+	//doc.Print();
+	//TiXmlElement* rootElement = doc.RootElement();
+	//TiXmlElement* classElement = rootElement->FirstChildElement();  // Class元素
+	//TiXmlElement* studentElement = classElement->FirstChildElement();  //Students 
 	bXmlUtf8 = stricmp(doc.FirstChild()->ToDeclaration()->Encoding(),"UTF-8")==0;
-	
+ 
+
 	TiXmlNode* nodeTarget = doc.FirstChild("Project")->FirstChild("Targets")->FirstChild("Target");
 	TiXmlNode* nodeVariousControls = nodeTarget->FirstChild("TargetOption")->FirstChild("TargetArmAds")->FirstChild("Cads")->FirstChild("VariousControls");
-	//取得宏定义
+	//取得宏定义 Define
 	TiXmlElement* cDefine = nodeVariousControls->FirstChild("Define")->ToElement();
 	ret_str = cDefine->GetText();
 	if(ret_str){
@@ -262,7 +386,7 @@ bool get_uv_info(const char* uvproj,vector<string>& groups,string& define,string
 			define = ret_str;
 		}
 	}
-	//取得包含路径
+	//取得包含路径 IncludePath
 	TiXmlElement* cIncludePath = nodeVariousControls->FirstChild("IncludePath")->ToElement();
 	ret_str = cIncludePath->GetText();
 	if(ret_str){
@@ -273,8 +397,8 @@ bool get_uv_info(const char* uvproj,vector<string>& groups,string& define,string
 		}
 	}
 
-	//cout<<cDefine->GetText()<<endl;
-	//cout<<cIncludePath->GetText()<<endl;
+	cout<<cDefine->GetText()<<endl;
+	cout<<cIncludePath->GetText()<<endl;
 
 	TiXmlNode* nodeGroups = nodeTarget->FirstChild("Groups");
 	//Goups包含源代码分组信息,遍历
@@ -295,8 +419,10 @@ bool get_uv_info(const char* uvproj,vector<string>& groups,string& define,string
 				TiXmlElement* eleFileName = file->FirstChild()->ToElement();
 				//文件路径
 				TiXmlElement* eleFilePath = file->FirstChild()->NextSibling()->NextSibling()->ToElement();
-				//cout<<eleFileName->GetText()<<","<<eleFilePath->GetText()<<endl;
-				
+				cout<<eleFileName->GetText()<<","<<eleFilePath->GetText()<<endl;
+				//system("xcopy eleFilePath->GetText()  1.txt /e /i");
+				src = eleFilePath->GetText();
+				filecpy(src, "1.txt");
 				strGroup<<"# Begin Source File\r\n\r\nSOURCE=\""<<AStr(eleFilePath->GetText(),bXmlUtf8).toAnsi()<<"\"\r\n"<<"# End Source File\r\n";
 			}
 		}
@@ -305,7 +431,15 @@ bool get_uv_info(const char* uvproj,vector<string>& groups,string& define,string
 	}
 	return true;
 }
-
+//DEQUOTE
+//去除字符串中的配对引号，且该字符串是以该引号开始的，并且去掉与之配对的后引号之后的全部内容。
+//啰嗦了，举个例子：y = dequote(x);
+//
+//"我是'我'的"我""    我是'我'的
+//"你"是你的'你'      你
+//他是他的"他"        他是他的"他"
+//她们还是她们        她们还是她们
+//'它是'它'的它'      它是
 void dequote(char* str)
 {
 	char* di = str;
@@ -331,6 +465,7 @@ void dereturn(char* str)
 	if(*p=='\n') *p = '\0';
 }
 
+
 void setdir(char* location)
 {
 	char tmp;
@@ -344,6 +479,25 @@ void setdir(char* location)
 	}
 }
 
+char *strstr1(const char*s1, const char*s2)
+{
+	int n;
+	if (*s2)
+	{
+		while (*s1)
+		{
+			for (n = 0; *(s1 + n) == *(s2 + n); n++)
+			{
+				if (!*(s2 + n + 1))
+					return(char*)s1;
+			}
+			s1++;
+		}
+		return NULL;
+	}
+	else
+		return (char*)s1;
+}
 bool is_file_present(const char* fn)
 {
 	DWORD dwAttributes = GetFileAttributes(fn);
@@ -368,19 +522,76 @@ void about(void)
 	;
 	printf(help);
 }
+//获取当前运行文件路径
+string GetFilePath(char * filepath)
+{
+	//char szFilePath[MAX_PATH + 1] = { 0 };
+	GetModuleFileNameA(NULL, filepath, MAX_PATH);
+	(strrchr(filepath, '\\'))[0] = 0; // 删除文件名，只获得路径字串  
+	string path = filepath;
+	cout << path << endl;
+	return path;
 
+}
+void make_full_path(char* s, int nLen, const char *file_name, const char*file_ext)
+{
+	char szPath[MAX_PATH] = { 0 };
+	GetModuleFileNameA(NULL, szPath, MAX_PATH);
+	char cDir[100] = "";
+	char cDrive[10] = "";
+	char cf[20] = "";
+	char cExt[10] = "";
+	_splitpath_s(szPath, cDrive, cDir, cf, cExt);
+	_makepath_s(s, nLen, cDrive, cDir, file_name, file_ext);
+}
 int main(int argc,char** argv)
 {
+	FILE *in_file, *out_file;
 	vector<string> groups;
 	string define;
 	string includepath;
-
+	string runpath;
+	WIN32_FIND_DATA FindFileData;
 	char project[128]={0};
+	char filename[MAX_PATH] = { 0 };
+	char path[MAX_PATH] = { 0 };
 	char location[260]={0};
 	char compiler[260]={0};
-
 	about();
+	char tmp;
+	runpath = GetFilePath(location);
 
+	//strrchr(location, '.\\');
+	for (;;){
+
+		printf("输入keil工程文件名:");
+		//获取工程文件 
+		fgets(filename, sizeof(filename), stdin);
+		if (*filename == '\n'){
+			printf("错误:项目名称不合法!\n");
+			continue;
+		}
+		else{			
+			dequote(filename);
+			dereturn(filename);
+			printf("%s", filename);
+			// 判断 相对路径 绝对路径
+			if (NULL == strstr((const char *)filename, ":\\"))	{
+				
+				strcat(location, "\\");
+				strcat(location, filename);
+				strcpy(filename, location);
+			}
+			if (GetFileAttributes(filename) != -1)
+			{
+				printf("File exists ");
+			
+			break;
+			}
+
+		}
+	}
+	/*
 	for(;;){
 		printf("项目名称:");
 		fgets(project,sizeof(project),stdin);
@@ -410,7 +621,7 @@ int main(int argc,char** argv)
 			break;
 		}
 	}
-
+	
 	for(;;){
 		printf("系统路径:");
 		fgets(compiler,sizeof(compiler),stdin);
@@ -421,15 +632,15 @@ int main(int argc,char** argv)
 		dereturn(compiler);
 		break;
 	}
-
+*/
 	setdir(location);
 
 	try{
-		if(make_dsw_file(project)){
+		if (make_dsw_file(filename)){
 			if(get_uv_info(location,groups,define,includepath)){
 				includepath += ";";
-				includepath += compiler;
-				if(make_dsp_file(project,groups,define,includepath)){
+				//includepath += compiler;
+				if (make_dsp_file(filename, groups, define, includepath)){
 
 				}
 			}
