@@ -12,6 +12,26 @@ using namespace std;
 #include "Str.h"
 #include "string.h"
 #define BUF_SIZE    256
+
+string getRelativedir(const char *pDir){
+	int i;
+	string rdir = pDir;
+	int iLen = strlen(pDir);
+	for (i = 0; i < iLen; i++){
+		if (pDir[i] == '.' || pDir[i] == '\\' || pDir[i] == '/')
+		{
+			i++;
+		}
+		else
+		{
+			rdir[i] = 0;
+			break;
+		}
+
+	}
+	return rdir;
+}
+
 //移除相对路径
 const char * rmredir(const char *pDir){
 	int i;
@@ -31,14 +51,32 @@ const char * rmredir(const char *pDir){
 	}
 	return pszDir;
 }
-//获取当前运行文件路径
+
+void setdir(char* location)
+{
+	char tmp;
+	char* p = location + strlen(location) - 1;
+	while (*p != '\\' && p >= location) p--;
+	if (p >= location){
+		tmp = *p;
+		*p = '\0';
+		SetCurrentDirectory(location);
+		*p = tmp;
+	}
+}
+// "E:\\VS2013\\keil2vs\\output\\Debug"
+void getdir(char* curdir){
+	//char szFullPath[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, curdir);
+}
+//获取当前运行文件路径 "E:\\VS2013\\keil2vs\\.\\output\\Debug\\"
 string GetFilePath(char * filepath)
 {
 	//char szFilePath[MAX_PATH + 1] = { 0 };
-	GetModuleFileNameA(NULL, filepath, MAX_PATH);
-	(strrchr(filepath, '\\'))[0] = 0; // 删除文件名，只获得路径字串  
+	GetModuleFileName(NULL, filepath, MAX_PATH);	//通过文件获取路径
+	(strrchr(filepath, '\\'))[1] = 0; // 删除文件名，只获得路径字串  
 	string path = filepath;
-	cout << path << endl;
+	cout << "执行文件当前路径: "<< path << endl;
 	return path;
 
 }
@@ -80,7 +118,7 @@ int CreateDir(const   char   *sPathName)
 int copyfile(const char* srcfile,const char* dstfile)
 {
 	FILE *fp1, *fp2;
-	char filename1[256], filename2[256];
+	char uvprojx_file1[256], uvprojx_file2[256];
 	char buf[1024];
 	int total,readsize, writesize;
 	char dstdir[256];
@@ -88,7 +126,7 @@ int copyfile(const char* srcfile,const char* dstfile)
 			fp1 = fopen(srcfile, "rb");
 			if (fp1 == NULL)
 			{
-				printf("open %s failed /n", filename1);
+				printf("open %s failed /n", uvprojx_file1);
 				return -1;
 			}
 			//创建目录
@@ -101,7 +139,7 @@ int copyfile(const char* srcfile,const char* dstfile)
 			fp2 = fopen(dstfile, "wb+");
 			if (fp2 == NULL)
 			{
-				printf("open %s failed /n", filename2);
+				printf("open %s failed /n", uvprojx_file2);
 				fclose(fp1);
 				return -1;
 			}
@@ -122,7 +160,7 @@ int copyfile(const char* srcfile,const char* dstfile)
 			}
 			fclose(fp1);
 			fclose(fp2);
-			//rmdir(filename2);
+			//rmdir(uvprojx_file2);
 	
 
 }
@@ -457,14 +495,52 @@ bool make_dsp_file(const char* project_name, vector<string>& groups, string& def
 	return true;
 }
 
-bool get_uv_info(const char* uvproj, vector<string>& groups, string& define, string& includepath)
+string get_vs_proj(const char* uvprojfullfilename){
+	char srcf[256];
+	bool bXmlUtf8 = true;
+	TiXmlDocument doc(uvprojfullfilename);
+	if (!doc.LoadFile()){
+		cout << "错误:TiXmlDocument.LoadFile()" << endl;
+		return false;
+	}
+	bXmlUtf8 = stricmp(doc.FirstChild()->ToDeclaration()->Encoding(), "UTF-8") == 0;
+
+	TiXmlNode* nodeTarget = doc.FirstChild("Project")->FirstChild("Targets")->FirstChild("Target");
+	TiXmlNode* nodeGroups = nodeTarget->FirstChild("Groups");
+	//Goups包含源代码分组信息
+	TiXmlNode* group = nodeGroups->FirstChild("Group");
+	//取得分组名称
+	//TiXmlElement* eleGroupName = group->FirstChild()->ToElement();
+	TiXmlNode* file = group->FirstChild("Files")->FirstChild("File");
+
+	//文件路径
+	TiXmlElement* eleFilePath = file->FirstChild("FilePath")->ToElement();
+	//cout << eleFilePath->GetText() << endl;
+
+	//工程文件路径
+	getdir(srcf);
+	strcat(srcf, "\\");
+	const char* src = eleFilePath->GetText();
+	string rdir = getRelativedir(src);//获取相对路径中的..\\..\\				
+	strcat(srcf, rdir.c_str());
+	//setdir(srcf);
+
+	//getdir(dstf);
+	strcat(srcf, "\\Visual Studio 2013 Project\\");
+	//const char *jstr = rmredir(src);//获取相对路径中的文件名 source\\main.c
+	//strcat(srcf, jstr);//得到目标绝对路径
+	string VSpath = srcf;
+	return VSpath;
+}
+
+bool get_uv_info(const char* uvprojfullfilename, vector<string>& groups, string& define, string& includepath)
 {
 	char srcf[256];
 	char dstf[256];
 	const char* ret_str = NULL;
 	bool bXmlUtf8 = true;
 	const char* src;
-	TiXmlDocument doc(uvproj);
+	TiXmlDocument doc(uvprojfullfilename);
 	if (!doc.LoadFile()){
 		cout << "错误:TiXmlDocument.LoadFile()" << endl;
 		return false;
@@ -488,6 +564,7 @@ bool get_uv_info(const char* uvproj, vector<string>& groups, string& define, str
 		else{
 			define = ret_str;
 		}
+		cout << cDefine->GetText() << endl;
 	}
 	//取得包含路径 IncludePath
 	TiXmlElement* cIncludePath = nodeVariousControls->FirstChild("IncludePath")->ToElement();
@@ -499,10 +576,12 @@ bool get_uv_info(const char* uvproj, vector<string>& groups, string& define, str
 		else{
 			includepath = ret_str;
 		}
+		//一定注意 Cout 不为NULL时才能 输出 否则报异常
+		cout << cIncludePath->GetText() << endl;
 	}
 
-	cout << cDefine->GetText() << endl;
-	cout << cIncludePath->GetText() << endl;
+
+	
 
 	TiXmlNode* nodeGroups = nodeTarget->FirstChild("Groups");
 	//Goups包含源代码分组信息,遍历
@@ -520,20 +599,27 @@ bool get_uv_info(const char* uvproj, vector<string>& groups, string& define, str
 		if (nodeFiles){
 			for (TiXmlNode* file = nodeFiles->FirstChild(); file != NULL; file = file->NextSibling()){
 				//文件名
-				TiXmlElement* eleFileName = file->FirstChild()->ToElement();
+				TiXmlElement* eleuvprojx_file = file->FirstChild()->ToElement();
 				//文件路径
 				TiXmlElement* eleFilePath = file->FirstChild()->NextSibling()->NextSibling()->ToElement();
-				cout << eleFileName->GetText() << "," << eleFilePath->GetText() << endl;
-				//system("xcopy eleFilePath->GetText()  1.txt /e /i");
+				//cout << eleuvprojx_file->GetText() << "," << eleFilePath->GetText() << endl;
+
+
+				//工程文件路径
+				getdir(srcf);
+				strcat(srcf, "\\");
 				src = eleFilePath->GetText();
-				strcpy(srcf, uvproj);
-				strrchr(srcf, '\\')[1] = 0;//移除文件名
-				strcat(srcf,src);
-							
-				const char *jstr = rmredir(src);
-				strcpy(dstf, ".\\Visual Studio 2013 Project\\");
-				strcat(dstf, jstr);
-				copyfile(srcf, dstf);
+				string rdir =getRelativedir(src);//获取相对路径中的..\\..\\				
+				strcat(srcf, rdir.c_str());
+				//setdir(srcf);
+
+				//getdir(dstf);
+				strcat(srcf, "\\Visual Studio 2013 Project\\");
+				const char *jstr = rmredir(src);//获取相对路径中的文件名 source\\main.c
+				strcat(srcf, jstr);//得到目标绝对路径
+
+				copyfile(src, srcf);
+
 				strGroup << "# Begin Source File\r\n\r\nSOURCE=\"" << AStr(eleFilePath->GetText(), bXmlUtf8).toAnsi() << "\"\r\n" << "# End Source File\r\n";
 			}
 		}
@@ -576,19 +662,6 @@ void dereturn(char* str)
 	if (*p == '\n') *p = '\0';
 }
 
-
-void setdir(char* location)
-{
-	char tmp;
-	char* p = location + strlen(location) - 1;
-	while (*p != '\\' && p >= location) p--;
-	if (p >= location){
-		tmp = *p;
-		*p = '\0';
-		SetCurrentDirectory(location);
-		*p = tmp;
-	}
-}
 
 char *strstr1(const char*s1, const char*s2)
 {
@@ -653,99 +726,81 @@ int main(int argc, char** argv)
 	string includepath;
 	WIN32_FIND_DATA FindFileData;
 	char project[128] = { 0 };
-	char filename[MAX_PATH] = { 0 };
 	char path[MAX_PATH] = { 0 };
-	char location[260] = { 0 };
+	char location[MAX_PATH] = { 0 };
 	char compiler[260] = { 0 };
 	about();
 	char tmp;
-	//获取运行目录
-	GetFilePath(location);
+	
+		//获取运行目录 szFullPath
+		char szFullPath[MAX_PATH];
+		//getdir(szFullPath);
+		//cout << szFullPath << endl;
+		GetFilePath(szFullPath);
+		setdir(szFullPath);	//如果设置的目录一定要确保\\结尾 否则当作文件处理***
+		getdir(szFullPath);
+		cout << "优化后的当前路径: " << szFullPath << endl;
+	
+
 	//strcat(location, "\\..\\usr\\\\elp/23d");
-	//	strcat(location, filename);
+	//	strcat(location, uvprojx_file);
 	//_mkdir("..");
 	//CreateDir(location);
 	//strrchr(location, '.\\');
 
+	char uvprojx_file[MAX_PATH] = { 0 };
+	char uv_full_name[MAX_PATH] = { 0 };
+	//获取uvprojx文件 转换为绝对路径
 	for (;;){
 
-		printf("输入keil工程文件名:");
+		printf("输入uvprojx工程文件名:");
 		//获取工程文件 
-		fgets(filename, sizeof(filename), stdin);
-		if (*filename == '\n'){
+		fgets(uvprojx_file, sizeof(uvprojx_file), stdin);
+		if (*uvprojx_file == '\n'){
 			printf("错误:项目名称不合法!\n");
 			continue;
 		}
 		else{
-			dequote(filename);
-			dereturn(filename);
-			printf("%s", filename);
-			// 判断 相对路径 绝对路径
-			if (NULL == strstr((const char *)filename, ":\\"))	{
-
-				strcat(location, "\\");
-				strcat(location, filename);
-				strcpy(filename, location);
+			dequote(uvprojx_file);
+			dereturn(uvprojx_file);
+			
+			// 判断 
+			if (NULL == strstr((const char *)uvprojx_file, ":\\"))	{
+				//相对路径->绝对路径
+				strcat(szFullPath, "\\");
+				strcat(szFullPath, uvprojx_file);
+				strcpy(uvprojx_file, szFullPath);
 			}
-			if (GetFileAttributes(filename) != -1)
+			if (GetFileAttributes(uvprojx_file) != -1)
 			{
-				printf("File exists ");
+				printf("找到uv工程文件: %s \n", uvprojx_file);
 
 				break;
 			}
-
+			printf("未找到uv工程文件 : %s \n", uvprojx_file);
 		}
 	}
-	/*
-	for(;;){
-	printf("项目名称:");
-	fgets(project,sizeof(project),stdin);
-	if(*project=='\n'){
-	printf("错误:项目名称不合法!\n");
-	continue;
-	}else{
-	dequote(project);
-	dereturn(project);
-	break;
-	}
-	}
-
-	for(;;){
-	printf("项目路径:");
-	fgets(location,sizeof(location),stdin);
-	if(*location=='\n'){
-	printf("错误:路径不合法!\n");
-	continue;
-	}else{
-	dequote(location);
-	dereturn(location);
-	if(!is_file_present(location)){
-	printf("错误:不存在的 .uvproj 文件\n");
-	continue;
-	}
-	break;
-	}
-	}
-
-	for(;;){
-	printf("系统路径:");
-	fgets(compiler,sizeof(compiler),stdin);
-	if(*compiler=='\n'){
-	*compiler = '\0';
-	}
-	dequote(compiler);
-	dereturn(compiler);
-	break;
-	}
-	*/
-	setdir(location);
+	setdir(uvprojx_file);
+	getdir(szFullPath);
+	cout << "重新获取工程文件路径: " << szFullPath << endl;
+	
+	//取得工程名
+	char *uvfilename;
+	char project_name[128] = { 0 };
+	uvfilename =strrchr(uvprojx_file, '\\');
+	uvfilename++;
+	strcpy(project_name, uvfilename);
+	strrchr(project_name, '.')[0] = 0; 
+	cout << "工程名称: " << project_name << endl;
+	
+	//获取VS2013工程创建路径
 
 	try{
-		if (make_dsw_file(filename)){
-			if (get_uv_info(filename, groups, define, includepath)){
+		if (make_dsw_file(uvprojx_file)){
+			if (get_uv_info(uvprojx_file, groups, define, includepath)){
 				includepath += ";";
 				//includepath += compiler;
-				if (make_dsp_file(filename, groups, define, includepath)){
+				if (make_dsp_file(uvprojx_file, groups, define, includepath)){
 
 				}
 			}
