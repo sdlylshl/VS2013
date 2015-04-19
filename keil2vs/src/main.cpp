@@ -4,6 +4,8 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <iterator>
+#include <algorithm>
 #include <io.h>
 using namespace std;
 #include <direct.h>
@@ -609,7 +611,7 @@ bool get_uv_info(const char* uvprojfullfilename, vector<string>& groups, string&
 				getdir(srcf);
 				strcat(srcf, "\\");
 				src = eleFilePath->GetText();
-				string rdir =getRelativedir(src);//获取相对路径中的..\\..\\				
+				string rdir =getRelativedir(src);//获取相对路径中的..\\..\\
 				strcat(srcf, rdir.c_str());
 				//setdir(srcf);
 
@@ -691,20 +693,7 @@ bool is_file_present(const char* fn)
 
 void about(void)
 {
-	const char* help =
-		"   欢迎使用 Keil uVision stm32 项目文件转 Visual Studio 项目小工具\n"
-		"如果你厌倦了Keil那糟糕的代码编辑器, 试试回到VS的怀抱吧~ VC6也远比Keil好用哦~\n"
-		"\n"
-		"使用方法:\n"
-		"  项目名称:你的项目的名称\n"
-		"  项目路径:Keil uVision stm32 .uvproj 文件绝对路径\n"
-		"  系统路径:Keil uVision MDK 提供的头文件所在的绝对路径(Keil/ARM/RV31)\n"
-		"\n"
-		"关于程序:\n"
-		"  作者:女孩不哭 编写时间:2013-10-29 联系:anhbk@qq.com\n"
-		"  源码下载:http://www.cnblogs.com/nbsofer/p/keil2vs.html\n\n"
-		;
-	printf(help);
+
 }
 
 void make_full_path(char* s, int nLen, const char *file_name, const char*file_ext)
@@ -730,8 +719,8 @@ int main(int argc, char** argv)
 	char location[MAX_PATH] = { 0 };
 	char compiler[260] = { 0 };
 	about();
-	char tmp;
-	
+	//char tmp;
+	//sort(groups.begin(), groups.end());
 		//获取运行目录 szFullPath
 		char szFullPath[MAX_PATH];
 		//getdir(szFullPath);
@@ -794,13 +783,20 @@ int main(int argc, char** argv)
 	cout << "工程名称: " << project_name << endl;
 	
 	//获取VS2013工程创建路径
-
+	string vsproj = get_vs_proj(uvprojx_file);
+	vsproj += project_name;
+	//vsproj.at(1) = 0;
+	//const char *str11 = vsproj.c_str();
+	//vsproj += str11;
+	//string::iterator it = vsproj.begin();
+	//string::iterator it2 = vsproj.end();
+	//int ss0 = vsproj.size();
 	try{
-		if (make_dsw_file(uvprojx_file)){
+		if (make_dsw_file(vsproj.c_str())){
 			if (get_uv_info(uvprojx_file, groups, define, includepath)){
 				includepath += ";";
 				//includepath += compiler;
-				if (make_dsp_file(uvprojx_file, groups, define, includepath)){
+				if (make_dsp_file(vsproj.c_str(), groups, define, includepath)){
 
 				}
 			}
